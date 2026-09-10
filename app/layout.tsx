@@ -13,8 +13,43 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "NARA — Papan Tugas",
-  description: "Papan submission tugas kuliah Nara",
+  title: "NARA — Papan Tugas Kuliah",
+  description:
+    "Catat tugas kuliah, atur tenggat waktu, dan dapatkan reminder harian otomatis lewat WhatsApp. Tidak ada lagi tugas yang terlewat!",
+  metadataBase: new URL("https://nara-frontend.vercel.app"),
+  icons: {
+    icon: [
+      { url: "/favicon/favicon.ico", sizes: "any" },
+      { url: "/favicon/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/favicon/apple-touch-icon.png",
+  },
+  manifest: "/favicon/site.webmanifest",
+  openGraph: {
+    title: "NARA — Papan Tugas Kuliah",
+    description:
+      "Catat tugas kuliah, atur tenggat waktu, dan dapatkan reminder harian otomatis lewat WhatsApp.",
+    url: "https://nara-frontend.vercel.app",
+    siteName: "NARA",
+    images: [
+      {
+        url: "/og-image.webp",
+        width: 1200,
+        height: 630,
+        alt: "NARA — Papan Tugas Kuliah",
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NARA — Papan Tugas Kuliah",
+    description:
+      "Catat tugas kuliah, atur tenggat waktu, dan dapatkan reminder harian otomatis lewat WhatsApp.",
+    images: ["/og-image.webp"],
+  },
 };
 
 export default function RootLayout({
