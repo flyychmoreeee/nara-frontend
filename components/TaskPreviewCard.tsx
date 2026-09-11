@@ -32,7 +32,7 @@ export function TaskPreviewCard({
 
         <div className="bg-[#fefce8] border-2 border-amber-300/80 rounded-xl p-6 shadow-[5px_7px_15px_rgba(0,0,0,0.07)] rotate-0.5 transition-transform duration-200 hover:rotate-0">
           <div className="flex items-center justify-between border-b-2 border-dashed border-amber-200 pb-3 mb-4">
-            <span className="text-xs font-black uppercase tracking-widest text-amber-900/80 font-mono">
+            <span className="text-xs font-black uppercase text-amber-900/80 font-mono">
             Sticky Note Preview
             </span>
             <span
@@ -42,7 +42,7 @@ export function TaskPreviewCard({
                   : "bg-amber-100 text-amber-800 border-amber-300"
               }`}
             >
-              {isCompleted ? "✓ Selesai" : "● Pending"}
+              {isCompleted ? "Selesai" : "Ditugaskan"}
             </span>
           </div>
 
@@ -51,7 +51,7 @@ export function TaskPreviewCard({
             {/* Course Tag */}
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded font-mono text-xs font-bold bg-amber-200/80 text-amber-900 border border-amber-300">
-                {selectedCourse?.code || "KODE MATKUL"}
+                {selectedCourse?.code || "Kode Matkul"}
               </span>
               <span className="text-xs font-semibold text-slate-800 truncate">
                 {selectedCourse?.name || "Nama Mata Kuliah"}
@@ -110,7 +110,7 @@ export function TaskPreviewCard({
       <div className="bg-white border-2 border-slate-300 rounded-xl p-4 text-xs text-slate-700 shadow-[3px_3px_0px_0px_rgba(203,213,225,0.9)] flex items-start gap-2.5">
         <Info className="w-4 h-4 shrink-0 text-blue-600 mt-0.5" />
         <p className="leading-relaxed">
-          Tugas yang disubmit ke papan akan otomatis masuk ke antrean reminder WhatsApp dan jadwal belajar harian Anda.
+          Tugas yang disubmit ke papan akan otomatis masuk ke antrean reminder WhatsApp.
         </p>
       </div>
 

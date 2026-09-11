@@ -44,6 +44,11 @@ export interface CreateTaskPayload {
   is_completed: boolean;
 }
 
+export interface FetchTasksParams {
+  course_id?: number;
+  status?: 'pending' | 'completed' | 'all';
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message?: string;

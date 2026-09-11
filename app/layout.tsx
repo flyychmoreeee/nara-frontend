@@ -52,6 +52,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Toaster } from "@/components/ui/toast";
+
 export default function RootLayout({
   children,
 }: {
@@ -64,6 +66,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#eef1f6] text-slate-900 selection:bg-amber-200 selection:text-slate-900 font-sans">
         {children}
+        <Toaster />
       </body>
     </html>
   );

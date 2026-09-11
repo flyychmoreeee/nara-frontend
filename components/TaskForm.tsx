@@ -85,8 +85,8 @@ export function TaskForm({
   };
 
   return (
-    <div className="lg:col-span-7 bg-white border-2 border-slate-300 rounded-2xl p-6 sm:p-8 shadow-[4px_4px_0px_0px_rgba(203,213,225,0.9)]">
-      <form onSubmit={onSubmit} className="space-y-6">
+    <div className="lg:col-span-7 bg-white border-2 border-slate-300 rounded-2xl p-4 sm:p-6 md:p-8 shadow-[4px_4px_0px_0px_rgba(203,213,225,0.9)]">
+      <form onSubmit={onSubmit} className="space-y-5 sm:space-y-6">
         {/* Field 1: Course Selection */}
         <CourseSelect
           courses={courses}
@@ -162,8 +162,8 @@ export function TaskForm({
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <CalendarDays className="w-3.5 h-3.5 text-slate-700" />
-              Tenggat Waktu (Due Date)
+              <span className="hidden sm:inline">Tenggat Waktu (Due Date)</span>
+              <span className="sm:hidden">Tenggat Waktu</span>
             </label>
             {dueInfo && (
               <span
@@ -188,22 +188,19 @@ export function TaskForm({
                 : "border-slate-300 hover:border-slate-900 shadow-xs hover:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]"
             }`}
           >
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <CalendarDays className="w-4 h-4 text-slate-600 shrink-0" />
+            <div className="flex items-center overflow-hidden">
               {dueInfo ? (
-                <div className="flex items-center gap-2 truncate">
-                  <span className="font-bold text-slate-900">
-                    {dueInfo.formatted}
-                  </span>
-                </div>
+                <span className="font-bold text-slate-900 truncate text-sm">
+                  {dueInfo.formatted}
+                </span>
               ) : (
-                <span className="text-slate-400">
-                  Pilih tanggal & jam tenggat waktu...
+                <span className="text-slate-400 text-sm">
+                  Pilih tanggal tenggat...
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 shrink-0">
               {dueDate ? (
                 <button
                   type="button"
@@ -212,14 +209,17 @@ export function TaskForm({
                     setDueDate("");
                     clearValidationError("due_date");
                   }}
-                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition cursor-pointer"
                   title="Hapus Tenggat"
                 >
                   <X className="w-4 h-4" />
                 </button>
               ) : null}
-              <span className="text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg border border-slate-300">
+              <span className="text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg border border-slate-300 hidden sm:inline">
                 Pilih Tanggal
+              </span>
+              <span className="sm:hidden p-1">
+                <CalendarDays className="w-4 h-4 text-slate-600" />
               </span>
             </div>
           </div>
@@ -254,19 +254,19 @@ export function TaskForm({
           </label>
 
           <textarea
-            rows={4}
-            placeholder="Tuliskan instruksi tugas, halaman buku, format pengumpulan, atau catatan tambahan..."
+            rows={3}
+            placeholder="Tuliskan instruksi tugas, format pengumpulan, atau catatan tambahan..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-white border-2 border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] shadow-xs transition-all duration-150 resize-y"
+            className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 sm:px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] shadow-xs transition-all duration-150 resize-y"
           />
         </div>
 
         {/* Field 5: Status Completion Toggle */}
-        <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="p-3 sm:p-4 rounded-xl bg-slate-50 border-2 border-slate-200 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <div
-              className={`w-8 h-8 rounded-lg flex items-center justify-center border ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center border shrink-0 ${
                 isCompleted
                   ? "bg-emerald-500 text-white border-emerald-600"
                   : "bg-white text-slate-400 border-slate-300"
@@ -274,14 +274,14 @@ export function TaskForm({
             >
               <CheckCircle2 className="w-4 h-4" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-xs font-bold text-slate-900">
                 Status Penyelesaian
               </p>
-              <p className="text-[11px] text-slate-500 font-medium">
+              <p className="text-[11px] text-slate-500 font-medium truncate">
                 {isCompleted
-                  ? "Tugas ditandai sudah selesai dikerjakan"
-                  : "Tugas berstatus pending / belum selesai"}
+                  ? "Sudah selesai"
+                  : "Belum selesai"}
               </p>
             </div>
           </div>

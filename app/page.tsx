@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Course, Task } from "@/types";
-import { fetchCourses, createTask, ApiError } from "@/lib/api";
+import { fetchCourses, createTask, fetchTasks, toggleTaskComplete, deleteTask, ApiError } from "@/lib/api";
 import { AlertBanner } from "@/components/AlertBanner";
 import { TaskForm } from "@/components/TaskForm";
 import { TaskPreviewCard } from "@/components/TaskPreviewCard";
 import { SuccessModal } from "@/components/SuccessModal";
+import { ExistingTasksList } from "@/components/ExistingTasksList";
 
 export default function SubmitTaskPage() {
   // Course State
@@ -27,6 +28,12 @@ export default function SubmitTaskPage() {
   const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
   const [createdTask, setCreatedTask] = useState<Task | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+
+  // Existing Tasks State
+  const [existingTasks, setExistingTasks] = useState<Task[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState<boolean>(true);
+  const [tasksError, setTasksError] = useState<string | null>(null);
+  const [taskCourseFilter] = useState<number | null>(null);
 
   // Initial load courses on mount
   useEffect(() => {
@@ -55,6 +62,85 @@ export default function SubmitTaskPage() {
       isMounted = false;
     };
   }, []);
+
+  // Load existing tasks on mount and when course filter changes
+  useEffect(() => {
+    let isMounted = true;
+    const params: { course_id?: number; status?: 'pending' | 'completed' | 'all' } = {};
+    if (taskCourseFilter) {
+      params.course_id = taskCourseFilter;
+    }
+
+    fetchTasks(params)
+      .then((data) => {
+        if (isMounted) {
+          setExistingTasks(data);
+          setIsLoadingTasks(false);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error("Failed to load tasks:", err);
+          if (err instanceof ApiError) {
+            setTasksError(err.message);
+          } else {
+            setTasksError("Gagal memuat daftar tugas.");
+          }
+          setIsLoadingTasks(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [taskCourseFilter]);
+
+  // Manual reload for retry button and post-submission refresh
+  const loadExistingTasks = async () => {
+    setIsLoadingTasks(true);
+    setTasksError(null);
+    try {
+      const params: { course_id?: number; status?: 'pending' | 'completed' | 'all' } = {};
+      if (taskCourseFilter) {
+        params.course_id = taskCourseFilter;
+      }
+      const data = await fetchTasks(params);
+      setExistingTasks(data);
+    } catch (err) {
+      console.error("Failed to load tasks:", err);
+      if (err instanceof ApiError) {
+        setTasksError(err.message);
+      } else {
+        setTasksError("Gagal memuat daftar tugas.");
+      }
+    } finally {
+      setIsLoadingTasks(false);
+    }
+  };
+
+  // Toggle task completion status
+  const handleToggleComplete = async (taskId: number) => {
+    try {
+      const updatedTask = await toggleTaskComplete(taskId);
+      setExistingTasks((prev) =>
+        prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+      );
+    } catch (err) {
+      console.error("Failed to toggle task:", err);
+      throw err;
+    }
+  };
+
+  // Delete a task
+  const handleDeleteTask = async (taskId: number) => {
+    try {
+      await deleteTask(taskId);
+      setExistingTasks((prev) => prev.filter((t) => t.id !== taskId));
+    } catch (err) {
+      console.error("Failed to delete task:", err);
+      throw err;
+    }
+  };
 
   // Manual reload courses action
   const handleReloadCourses = async () => {
@@ -189,6 +275,7 @@ export default function SubmitTaskPage() {
       setCreatedTask(task);
       setShowSuccessModal(true);
       resetForm();
+      loadExistingTasks();
     } catch (err) {
       console.error("Submission failed:", err);
       if (err instanceof ApiError) {
@@ -212,11 +299,11 @@ export default function SubmitTaskPage() {
           {/* Subtle Top Marker/Eraser Shelf Accent */}
           <div className="flex items-center justify-between pb-6 mb-8 border-b-2 border-slate-200">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
                 Tambah Tugas Kuliah
               </h1>
-              <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
-                Catat tugas dan atur tenggat waktu untuk pengingat harian.
+              <p className="mt-2 text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
+                Kelola daftar tugas kuliah atau tambahkan tugas baru di bawah.
               </p>
             </div>
 
@@ -234,9 +321,8 @@ export default function SubmitTaskPage() {
             <AlertBanner
               title="Gagal mengambil data mata kuliah"
               message={courseError}
-              subMessage={`Pastikan backend Laravel Anda berjalan di ${
-                process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"
-              }`}
+              subMessage={`Pastikan backend Laravel Anda berjalan di ${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api"
+                }`}
               onRetry={handleReloadCourses}
             />
           )}
@@ -249,37 +335,51 @@ export default function SubmitTaskPage() {
             />
           )}
 
-          {/* Grid Layout: Form (7 cols) + Sticky Memo Preview (5 cols) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <TaskForm
-              courses={courses}
-              isLoadingCourses={isLoadingCourses}
-              courseId={courseId}
-              setCourseId={setCourseId}
-              title={title}
-              setTitle={setTitle}
-              description={description}
-              setDescription={setDescription}
-              dueDate={dueDate}
-              setDueDate={setDueDate}
-              isCompleted={isCompleted}
-              setIsCompleted={setIsCompleted}
-              validationErrors={validationErrors}
-              clearValidationError={clearValidationError}
-              isSubmitting={isSubmitting}
-              onSubmit={handleSubmit}
-              onReset={resetForm}
-              dueInfo={dueInfo}
+          {/* Existing Tasks Section */}
+          <div className="mb-8">
+            <ExistingTasksList
+              tasks={existingTasks}
+              isLoading={isLoadingTasks}
+              error={tasksError}
+              onRetry={loadExistingTasks}
+              onToggleComplete={handleToggleComplete}
+              onDelete={handleDeleteTask}
             />
+          </div>
 
-            <TaskPreviewCard
-              selectedCourse={selectedCourse}
-              title={title}
-              description={description}
-              dueDate={dueDate}
-              isCompleted={isCompleted}
-              dueInfo={dueInfo}
-            />
+          {/* Grid Layout: Form (7 cols) + Sticky Memo Preview (5 cols) */}
+          <div className="pt-8 border-t-2 border-slate-200">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <TaskForm
+                courses={courses}
+                isLoadingCourses={isLoadingCourses}
+                courseId={courseId}
+                setCourseId={setCourseId}
+                title={title}
+                setTitle={setTitle}
+                description={description}
+                setDescription={setDescription}
+                dueDate={dueDate}
+                setDueDate={setDueDate}
+                isCompleted={isCompleted}
+                setIsCompleted={setIsCompleted}
+                validationErrors={validationErrors}
+                clearValidationError={clearValidationError}
+                isSubmitting={isSubmitting}
+                onSubmit={handleSubmit}
+                onReset={resetForm}
+                dueInfo={dueInfo}
+              />
+
+              <TaskPreviewCard
+                selectedCourse={selectedCourse}
+                title={title}
+                description={description}
+                dueDate={dueDate}
+                isCompleted={isCompleted}
+                dueInfo={dueInfo}
+              />
+            </div>
           </div>
         </div>
       </div>
