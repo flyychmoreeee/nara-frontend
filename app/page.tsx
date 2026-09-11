@@ -204,11 +204,14 @@ export default function SubmitTaskPage() {
       }).format(dt);
 
       const now = new Date();
-      const diffMs = dt.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      const isPast = dt.getTime() < now.getTime();
+
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const targetMidnight = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+      const diffDays = Math.round((targetMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
 
       let relative = "";
-      if (diffMs < 0) {
+      if (isPast) {
         relative = "Lewat tenggat";
       } else if (diffDays === 0) {
         relative = "Hari ini";
@@ -218,7 +221,7 @@ export default function SubmitTaskPage() {
         relative = `${diffDays} hari lagi`;
       }
 
-      return { formatted, relative, isPast: diffMs < 0 };
+      return { formatted, relative, isPast };
     } catch {
       return null;
     }

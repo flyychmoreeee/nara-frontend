@@ -87,14 +87,15 @@ export function ExistingTasksList({
       }).format(dt);
 
       const now = new Date();
-      const diffMs = dt.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      const isPast = dt.getTime() < now.getTime();
+
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const targetMidnight = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+      const diffDays = Math.round((targetMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
 
       let relative = "";
-      let isPast = false;
-      if (diffMs < 0) {
+      if (isPast) {
         relative = "Lewat tenggat";
-        isPast = true;
       } else if (diffDays === 0) {
         relative = "Hari ini";
       } else if (diffDays === 1) {
